@@ -1,0 +1,40 @@
+# Виртуальное окружение
+/venv/
+/.venv/
+/env/
+/.env/
+.env
+venv
+.venv
+
+# БД и миграции
+*.sqlite3
+*.db
+/db.sqlite3
+
+Donution/*/migrations/*
+
+# Статика (если собирается автоматически)
+/staticfiles/
+/mediafiles/
+
+# Медиафайлы
+*/media/
+
+# ========================
+# IDE и редакторы
+# ========================
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Файлы линтера
+.ruff_cache
+
+# Файлы pytest
+.coverage
+*.py[cod]
+*.pyc
