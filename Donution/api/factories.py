@@ -37,8 +37,8 @@ class CollectionFactory(factory.django.DjangoModelFactory):
     reason = factory.Iterator(Reason)
     target_amount = factory.Faker(
         'pyint',
-        min_value=100,
-        max_value=1000
+        min_value=1000,
+        max_value=10000
     )
     image = factory.django.ImageField(color='blue')
     created_at = factory.Faker('date_time_this_year')
@@ -50,11 +50,10 @@ class PaymentFactory(factory.django.DjangoModelFactory):
         model = Payment
 
     amount = factory.Faker(
-        'pydecimal',
-        left_digits=3,
-        right_digits=2,
-        positive=True
+        'pyint',
+        min_value=10,
+        max_value=100
     )
     collect = factory.Iterator(Collection.objects.all())
-    payer = factory.SubFactory(UserFactory)
+    payer = factory.Iterator(User.objects.all().order_by('username'))
     payment_date_time = factory.Faker('date_time_this_year')

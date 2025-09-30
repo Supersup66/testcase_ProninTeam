@@ -3,6 +3,7 @@ from rest_framework import serializers as s
 from django.contrib.auth import get_user_model
 
 from collects.models import Collection
+from collects.constants import Reason
 from payments.models import Payment
 
 User = get_user_model()
@@ -55,6 +56,9 @@ class CollectionSerializer(s.ModelSerializer):
 
     payer_count = s.SerializerMethodField()
 
+    reason = s.ChoiceField(
+        choices=Reason.choices)
+
     class Meta:
         model = Collection
         fields = '__all__'
@@ -71,8 +75,14 @@ class CollectionSerializer(s.ModelSerializer):
 
 
 class CollectionDetailSerializer(CollectionSerializer):
+
     payments = PaymentSerializer(many=True, required=False)
+
+    link = s.SerializerMethodField()
 
     class Meta:
         model = Collection
         fields = '__all__'
+
+    def get_link(self, obj):
+        return self.context.get('request').build_absolute_uri()
