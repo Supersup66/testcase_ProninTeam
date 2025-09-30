@@ -1,14 +1,17 @@
 from rest_framework.viewsets import ModelViewSet
 from api.v1.serializers import (
+    CollectionDetailSerializer,
     CollectionSerializer,
     PaymentSerializer,
     UserSerializer
 )
 from collects.models import Collection
+from collects.permissions import IsOwnerOrReadOnly
 from payments.models import Payment
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from api.utils import delete_cache
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from rest_framework.response import Response
 
@@ -19,8 +22,16 @@ class CollectionViewSet(ModelViewSet):
 
     serializer_class = CollectionSerializer
     queryset = Collection.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     CACHE_KEY_PREFIX = "collection-view"
+
+    def get_serializer_class(self):
+
+        if self.action == 'retrieve':
+            return CollectionDetailSerializer
+
+        return CollectionSerializer
 
     def list(self, request):
         result = cache.get(self.CACHE_KEY_PREFIX)
@@ -55,6 +66,7 @@ class PaymentViewSet(ModelViewSet):
 
     serializer_class = PaymentSerializer
     queryset = Payment.objects.all()
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
 class UserViewSet(ModelViewSet):

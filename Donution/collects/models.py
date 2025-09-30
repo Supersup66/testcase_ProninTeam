@@ -5,6 +5,8 @@ from collects.constants import TEXT_FIELD_MAX_LENGHT, Reason, REASON_MAX_LENGTH
 import os
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.db.models import Sum
+
 
 User = get_user_model()
 
@@ -57,6 +59,14 @@ class Collection(m.Model):
         verbose_name = _('Collection')
         verbose_name_plural = _('Collections')
         default_related_name = 'collections'
+        ordering = ('-created_at',)
+
+    def get_total_amount(self):
+        """
+        Возвращает общую сумму всех платежей, связанных с этой коллекцией.
+        """
+        return self.payments.aggregate(
+            total_amount=Sum('amount'))['total_amount'] or 0
 
 
 @receiver(post_delete, sender=Collection)

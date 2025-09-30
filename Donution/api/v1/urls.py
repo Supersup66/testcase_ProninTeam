@@ -11,4 +11,5 @@ api_v1.register(r'collections', CollectionViewSet, basename='collections')
 
 
 urlpatterns = [
-    path('', include(api_v1.urls)),]
+    path('', include(api_v1.urls)),
+]

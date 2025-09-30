@@ -17,6 +17,7 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -27,6 +28,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
     'api',
     'collects',
     'payments'
@@ -137,7 +140,8 @@ CACHES = {
     }
 }
 
-
-# REST_FRAMEWORK = {
-#     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer", ),
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}

@@ -23,6 +23,14 @@ class Payment(m.Model):
     )
     payment_date_time = m.DateTimeField(auto_now_add=True)
 
+    is_hidden = m.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = _('Payment')
+        verbose_name_plural = _('Payments')
+        default_related_name = 'payments'
+        ordering = ('-payment_date_time',)
+
     def __str__(self):
         return (f'{self.payer.username} pay {self.amount} '
                 f'to "{self.collect.title}"')
