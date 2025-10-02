@@ -26,6 +26,7 @@ def like_changed(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Collection)
 def send_email_to_author(sender, instance, created, **kwargs):
+    print('Мы здесь')
     if created:
         send_collection_created_email.delay(collect_id=instance.id)
 

@@ -42,8 +42,8 @@ class PaymentSerializer(s.ModelSerializer):
         return super().validate(attrs)
 
     def create(self, validated_data):
-        validated_data['author'] = self.context['request'].user
-        return Collection.objects.create(**validated_data)
+        validated_data['payer'] = self.context['request'].user
+        return Payment.objects.create(**validated_data)
 
 
 class CollectionSerializer(s.ModelSerializer):
