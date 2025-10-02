@@ -51,6 +51,10 @@ class Collection(m.Model):
         null=True,
         blank=True
     )
+    is_active = m.BooleanField(
+        verbose_name=_('Is active collection'),
+        default=True
+    )
 
     def __str__(self):
         return self.title
@@ -65,8 +69,8 @@ class Collection(m.Model):
         """
         Возвращает общую сумму всех платежей, связанных с этой коллекцией.
         """
-        return self.payments.aggregate(
-            total_amount=Sum('amount'))['total_amount'] or 0
+        return int(self.payments.aggregate(
+            total_amount=Sum('amount'))['total_amount'] or 0)
 
 
 @receiver(post_delete, sender=Collection)

@@ -1,56 +1,61 @@
 from celery import shared_task
-from django.core.mail import send_mail
 from django.conf import settings
 from django.core.mail import EmailMessage
+from django.utils.timezone import now
 
 from collects.models import Collection
 from payments.models import Payment
-
-# @shared_task(
-#     retry_kwargs={"max_retries": 5, "countdown": 60},
-#     retry_backoff=True,
-#     retry_jitter=True,
-# )
 
 
 @shared_task
 def send_collection_created_email(collect_id):
     """Отправить письмо автору о создании сбора"""
-    print('Письмо отправлено!')
-    request = Collection.objects.get(id=collect_id)
-    subject = "Ваш сбор успешно создан!"
+    collection = Collection.objects.get(id=collect_id)
+    subject = "Your collection created"
     message = (
-        f"Здравствуйте!\n\n"
-        f"Ваш сбор «{request.name}» (ID: {collect_id}) успешно создан.\n"
-        f"Теперь вы можете принимать платежи.\n\n"
-        "С уважением, команда Donution"
+        f"Dear, {collection.author.first_name}!\n\n"
+        f"Your collection '{collection.title}' has been successfully "
+        "created.\n"
+        'Below is the link to participate in this collection:\n'
+        # добавить ссылку на платежный эндпоинт\\\\n\\\\n"
+        "Sincerely, Donution team"
     )
+
     email = EmailMessage(
         subject=subject,
         body=message,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[request.author.email],
+        to=[collection.author.email],
     )
-    email.send()
+    email.send(fail_silently=False)
 
 
 @shared_task
 def send_payment_created_email(payment_id):
-    """Отправить письмо автору сбора о новом платеже"""
-    print('Письмо отправлено!')
+    """Send confirmation mail to payer."""
 
-    request = Payment.objects.get(id=payment_id)
-    subject = "Ваш платеж успешно создан!"
+    payment = Payment.objects.get(id=payment_id)
+    subject = "Your payment created!"
     message = (
-        f"Здравствуйте!\n\n"
-        f"Ваш платеж для сбора «{request.collect.title}»"
-        f"на сумму  {request.amount}. Успешно создан\n\n"
-        "С уважением, команда Donution."
+        f"Dear, {payment.payer.first_name}!\n\n"
+        f"Your payment for the collection '{payment.collect.title}'"
+        f"in the amount of {payment.amount} has been successfully created.\n\n"
+        "Sincerely, Donution team."
     )
+
     email = EmailMessage(
         subject=subject,
         body=message,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[request.author.email],
+        to=[payment.payer.email],
     )
     email.send()
+
+
+@shared_task(name='old_collection_task')
+def old_collection_task():
+    current_time = now()
+    collections_to_unactivate = Collection.objects.filter(
+        end_time_lte=current_time)
+    collections_to_unactivate.bulk_update(is_active=False)
+    print(f'{collections_to_unactivate.count()} deactivated!')

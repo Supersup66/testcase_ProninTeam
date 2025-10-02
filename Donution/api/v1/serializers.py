@@ -1,4 +1,4 @@
-# from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers as s
 from django.contrib.auth import get_user_model
 
@@ -20,6 +20,8 @@ class PaymentSerializer(s.ModelSerializer):
 
     payer = UserSerializer(read_only=True, default=s.CurrentUserDefault())
 
+    payment_date_time = s.DateTimeField(format='iso-8601')
+
     class Meta:
         model = Payment
         exclude = ('id',)
@@ -32,13 +34,8 @@ class PaymentSerializer(s.ModelSerializer):
 
     def validate(self, attrs):
         collect = attrs.get('collect')
-        amount = attrs.get('amount')
-        if collect.target_amount:
-            remains = collect.target_amount - collect.get_total_amount()
-            if amount > remains:
-                raise s.ValidationError(
-                    'Your payment exceeds the remaining amount to be '
-                    f'collected. It remains to collect {remains} ₽.')
+        if not collect.is_active:
+            raise s.ValidationError(_('Collection completed!'))
         return super().validate(attrs)
 
     def create(self, validated_data):
@@ -48,9 +45,11 @@ class PaymentSerializer(s.ModelSerializer):
 
 class CollectionSerializer(s.ModelSerializer):
 
-    # payments = PaymentSerializer(many=True, required=False)
-
     author = UserSerializer(read_only=True, default=s.CurrentUserDefault())
+
+    end_time = s.DateTimeField(format='iso-8601')
+
+    created_at = s.DateTimeField(read_only=True, format='iso-8601')
 
     collected_amount = s.SerializerMethodField()
 

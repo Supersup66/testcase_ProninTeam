@@ -147,13 +147,18 @@ REST_FRAMEWORK = {
     ),
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_HOST_USER = 'angel248poroshin@yandex.ru'
-EMAIL_HOST_PASSWORD = 'lnetdszzarclzhmd'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+# EMAIL_HOST = 'smtp.yandex.ru'
+# EMAIL_HOST_USER = 'angel248poroshin@yandex.ru'
+# EMAIL_HOST_PASSWORD = 'lnetdszzarclzhmd'
+# EMAIL_PORT = 465
+# EMAIL_USE_TLS = True
+# SERVER_EMAIL = EMAIL_HOST_USER
+# EMAIL_ADMIN = EMAIL_HOST_USER
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = "redis://localhost:6379/0"
