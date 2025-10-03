@@ -8,9 +8,9 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 
-CELERY_BEAT_SCHEDULE = {
-    'change-collection-status': {
+app.conf.beat_schedule = {
+    'every': {
         'task': 'api.tasks.old_collection_task',
-        'schedule': schedule(run_every=10),
+        'schedule': schedule(run_every=60),
     },
 }

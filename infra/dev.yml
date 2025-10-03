@@ -1,0 +1,93 @@
+volumes:
+  media:
+  static:
+  pg_data_donution:
+  redisdata:
+
+services:
+  donution_db:
+    image: postgres:17.5-alpine
+    container_name: donution_db
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - pg_data_donution:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  redis:
+    image: redis:latest
+    container_name: donution_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "$REDIS_PASSWORD", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    depends_on:
+      donution_db:
+        condition: service_healthy
+
+  # donution_celery_worker:
+  #   container_name: donution_celery_worker
+  #   build: ../Donution
+  #   command: celery -A volleybolley worker -l info -P gevent
+  #   env_file: .env
+  #   volumes:
+  #     - media:/app/media
+  #     - static:/app/backend_static
+  #   depends_on:
+  #     donution_db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "pgrep", "celery"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 15s
+
+  # donution_celery_beat:
+  #   container_name: donution_celery_beat
+  #   build: ../Donution
+  #   command: celery -A volleybolley beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+  #   env_file: .env
+  #   volumes:
+  #     - media:/app/media
+  #     - static:/app/backend_static
+  #   depends_on:
+  #     donution_celery_worker:
+  #       condition: service_healthy
+  #     donution_db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "pgrep", "celery"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #     start_period: 15s
+

@@ -20,7 +20,7 @@ class PaymentSerializer(s.ModelSerializer):
 
     payer = UserSerializer(read_only=True, default=s.CurrentUserDefault())
 
-    payment_date_time = s.DateTimeField(format='iso-8601')
+    payment_date_time = s.DateTimeField(format='iso-8601', read_only=True)
 
     class Meta:
         model = Payment

@@ -29,5 +29,10 @@ python manage.py makemigrations --noinput
 echo "Applying database migrations..."
 python manage.py migrate --noinput
 
+# echo "Starting celery worker..."
+# celery -A Donution worker -l info -P gevent 
+# echo "Worker Done! Starting beat..."
+# celery -A Donution beat -l info
+# echo "Beat done"
 # Запускаем основной процесс (команду из CMD)
 exec "$@"

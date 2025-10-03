@@ -21,7 +21,8 @@ User = get_user_model()
 
 class CollectionViewSet(ModelViewSet):
 
-    queryset = Collection.objects.all().prefetch_related('payments')
+    queryset = Collection.objects.filter(
+        is_active=True).prefetch_related('payments')
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get_serializer_class(self):

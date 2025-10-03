@@ -1,4 +1,5 @@
 from celery import shared_task
+from Donution.celery_app import app
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
@@ -28,6 +29,7 @@ def send_collection_created_email(collect_id):
         to=[collection.author.email],
     )
     email.send(fail_silently=False)
+    return 'E-mail to author sended!'
 
 
 @shared_task
@@ -50,12 +52,13 @@ def send_payment_created_email(payment_id):
         to=[payment.payer.email],
     )
     email.send()
+    return 'E-mail to payer sended!'
 
 
-@shared_task(name='old_collection_task')
+@app.task
 def old_collection_task():
     current_time = now()
     collections_to_unactivate = Collection.objects.filter(
-        end_time_lte=current_time)
-    collections_to_unactivate.bulk_update(is_active=False)
-    print(f'{collections_to_unactivate.count()} deactivated!')
+        end_time__lte=current_time, is_active=True
+        ).update(is_active=False)
+    return f'{collections_to_unactivate} collections deactivated!'
