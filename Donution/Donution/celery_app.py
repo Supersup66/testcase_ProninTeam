@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery.schedules import schedule
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Donution.settings')
 
 app = Celery('Donution')

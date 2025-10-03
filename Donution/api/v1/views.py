@@ -13,7 +13,6 @@ from django.core.cache import cache
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly, IsAuthenticated)
 from rest_framework.decorators import action
-
 from rest_framework.response import Response
 
 User = get_user_model()
@@ -21,9 +20,15 @@ User = get_user_model()
 
 class CollectionViewSet(ModelViewSet):
 
-    queryset = Collection.objects.filter(
-        is_active=True).prefetch_related('payments')
+    queryset = Collection.objects.select_related('author'
+                                                 ).prefetch_related('payments')
     permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.action == 'list':
+            return queryset.filter(is_active=True)
+        return queryset
 
     def get_serializer_class(self):
 

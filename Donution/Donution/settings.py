@@ -5,7 +5,9 @@ from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 BASE_DIR_OUT = Path(__file__).resolve().parents[2]
+
 ENV_FILE_PATH = BASE_DIR_OUT / 'infra' / '.env'
 
 load_dotenv(dotenv_path=ENV_FILE_PATH)
@@ -15,10 +17,6 @@ SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
-
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -33,7 +31,8 @@ INSTALLED_APPS = [
     'djoser',
     'api',
     'collects',
-    'payments'
+    'payments',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -66,16 +65,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Donution.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -86,9 +75,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,10 +91,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -119,18 +101,11 @@ USE_L10N = True
 
 USE_TZ = False
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/django_static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'django_static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -147,19 +122,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
-
+# If you have smtp server, uncomment and change this vars
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
 EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
-# EMAIL_HOST = 'smtp.yandex.ru'
-# EMAIL_HOST_USER = 'angel248poroshin@yandex.ru'
-# EMAIL_HOST_PASSWORD = 'lnetdszzarclzhmd'
-# EMAIL_PORT = 465
-# EMAIL_USE_TLS = True
-# SERVER_EMAIL = EMAIL_HOST_USER
-# EMAIL_ADMIN = EMAIL_HOST_USER
-# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+HOST_URL = os.getenv('HOST_URL', 'http://localhost')
 
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', "redis://localhost:6379/0")

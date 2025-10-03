@@ -1,14 +1,16 @@
+import os
+
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 
+from api.tasks import send_collection_created_email, send_payment_created_email
 from collects.models import Collection
 from collects.constants import CACHE_KEY_PREFIX
 from payments.models import Payment
-from api.tasks import send_collection_created_email, send_payment_created_email
 
 
-def clear_collection_cache(collect_id):
+def clear_collection_cache(collect_id: int) -> None:
     cache_key = f"{CACHE_KEY_PREFIX}{collect_id}"
     cache.delete(cache_key)
     cache.delete(CACHE_KEY_PREFIX)
@@ -43,3 +45,10 @@ def make_inactive_collect(sender, instance, **kwargs):
             collect.get_total_amount() > collect.target_amount):
         collect.is_active = False
         collect.save()
+
+
+@receiver(post_delete, sender=Collection)
+def delete_image(sender, instance, **kwargs):
+    if instance.image:
+        if os.path.isfile(instance.image.path):
+            os.remove(instance.image.path)

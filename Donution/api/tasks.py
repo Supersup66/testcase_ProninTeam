@@ -3,6 +3,7 @@ from Donution.celery_app import app
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.utils.timezone import now
+from django.urls import reverse
 
 from collects.models import Collection
 from payments.models import Payment
@@ -13,12 +14,14 @@ def send_collection_created_email(collect_id):
     """Отправить письмо автору о создании сбора"""
     collection = Collection.objects.get(id=collect_id)
     subject = "Your collection created"
+    url = reverse('api_v1:collections-payments', args=(collect_id,))
+    link = f'{settings.HOST_URL}{url}'
     message = (
         f"Dear, {collection.author.first_name}!\n\n"
         f"Your collection '{collection.title}' has been successfully "
         "created.\n"
         'Below is the link to participate in this collection:\n'
-        # добавить ссылку на платежный эндпоинт\\\\n\\\\n"
+        f'{link}\n\n'
         "Sincerely, Donution team"
     )
 
@@ -29,7 +32,7 @@ def send_collection_created_email(collect_id):
         to=[collection.author.email],
     )
     email.send(fail_silently=False)
-    return 'E-mail to author sended!'
+    return f'E-mail to author sended! {link}'
 
 
 @shared_task
@@ -60,5 +63,8 @@ def old_collection_task():
     current_time = now()
     collections_to_unactivate = Collection.objects.filter(
         end_time__lte=current_time, is_active=True
-        ).update(is_active=False)
-    return f'{collections_to_unactivate} collections deactivated!'
+        )
+    for collection in collections_to_unactivate:
+        collection.is_active = False
+        collection.save()
+    return f'{collections_to_unactivate.count()} collections deactivated!'
