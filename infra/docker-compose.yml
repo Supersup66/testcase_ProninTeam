@@ -49,9 +49,7 @@ services:
 
   donution_backend:
     container_name: donution_backend
-    build: 
-      context: ../Donution/
-      dockerfile: ../Donution/Dockerfile
+    build: ../Donution/
     env_file: .env
     volumes:
       - media:/app/media
@@ -84,10 +82,8 @@ services:
 
   donution_celery_worker:
     container_name: donution_celery_worker
-    build: 
-      context: ../Donution/
-      dockerfile: ../Donution/Dockerfile.celery
-    command: sh -c "celery -A Donution worker -l info -P gevent"
+    build: ../Donution/
+    command: celery -A Donution worker -l info -P gevent
     env_file: .env
     volumes:
       - media:/app/media
@@ -96,18 +92,11 @@ services:
       donution_backend:
         condition: service_healthy
     restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD", "pgrep", "celery"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 15s
+
   donution_celery_beat:
     container_name: donution_celery_beat
-    build: 
-      context: ../Donution/
-      dockerfile: ../Donution/Dockerfile.celery
-    command: sh -c "celery -A Donution beat -l info && echo 'Beat done!'"
+    build: ../Donution/
+    command: celery -A Donution beat -l info
     env_file: .env
     volumes:
       - media:/app/media
@@ -117,10 +106,5 @@ services:
         condition: service_started
 
     restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD", "pgrep", "celery"]
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 5
-    #   start_period: 15s
+
 
