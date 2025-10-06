@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
-from payments.models import Payment
-from collects.models import Collection
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
 
+from collects.models import Collection
+from payments.models import Payment
 
 User = get_user_model()
 

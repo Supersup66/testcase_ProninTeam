@@ -1,16 +1,11 @@
-from django.db import models as m
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models as m
 from django.utils.translation import gettext_lazy as _
 
-from collects.constants import (
-    TITLE_MAX_LENGTH,
-    TEXT_FIELD_MAX_LENGHT,
-    REASON_MAX_LENGTH,
-    MAX_TARGET_AMOUNT,
-    MIN_TARGET_AMOUNT,
-    Reason
-)
+from collects.constants import (MAX_TARGET_AMOUNT, MIN_TARGET_AMOUNT,
+                                REASON_MAX_LENGTH, TEXT_FIELD_MAX_LENGHT,
+                                TITLE_MAX_LENGTH, Reason)
 
 User = get_user_model()
 

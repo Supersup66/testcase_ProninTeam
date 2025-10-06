@@ -1,13 +1,13 @@
 import base64
 
-from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers as s
 
+from collects.constants import MAX_TARGET_AMOUNT, MIN_TARGET_AMOUNT, Reason
 from collects.models import Collection
-from collects.constants import Reason, MAX_TARGET_AMOUNT, MIN_TARGET_AMOUNT
 from payments.models import Payment
 
 User = get_user_model()
@@ -116,11 +116,11 @@ class CollectionDetailSerializer(CollectionSerializer):
 
     payments = PaymentSerializer(many=True, required=False)
 
-    link = s.SerializerMethodField()
+    link_to_pay = s.SerializerMethodField()
 
     class Meta:
         model = Collection
         fields = '__all__'
 
-    def get_link(self, obj):
-        return self.context.get('request').build_absolute_uri()
+    def get_link_to_pay(self, obj):
+        return self.context.get('request').build_absolute_uri() + 'payments/'

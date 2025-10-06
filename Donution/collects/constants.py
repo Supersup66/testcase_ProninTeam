@@ -1,11 +1,11 @@
 from django.db import models as m
 from django.utils.translation import gettext_lazy as _
 
-
 TEXT_FIELD_MAX_LENGHT = 255
 REASON_MAX_LENGTH = 30
 TITLE_MAX_LENGTH = 50
-CACHE_KEY_PREFIX = "collection_view_"
+CACHE_LIST_KEY_PREFIX = "collection_list_"
+CACHE_INSTANCE_KEY_PREFIX = "collection_instance_"
 
 
 class Reason(m.TextChoices):
@@ -16,7 +16,7 @@ class Reason(m.TextChoices):
     CHARITY = 'CHARITY', _('Charity')
     THERAPY = 'THERAPY', _('Therapy')
     FUNERAL = 'FUNERAL', _('Funeral')
-    DONUTS = 'DONUTS', _('Donuts')
+    DONUTS = 'DONUTS', _('Donuts, exactly!')
 
 
 MAX_PAGE_SIZE = 100

@@ -1,19 +1,18 @@
+from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from rest_framework.decorators import action
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from api.v1.serializers import (
-    CollectionDetailSerializer,
-    CollectionSerializer,
-    PaymentSerializer,
-    UserSerializer
-)
+
+from api.v1.serializers import (CollectionDetailSerializer,
+                                CollectionSerializer, PaymentSerializer,
+                                UserSerializer)
+from collects.constants import CACHE_INSTANCE_KEY_PREFIX, CACHE_LIST_KEY_PREFIX
 from collects.models import Collection
 from collects.permissions import IsOwnerOrReadOnly
-from collects.constants import CACHE_KEY_PREFIX
-from django.contrib.auth import get_user_model
-from django.core.cache import cache
-from rest_framework.permissions import (
-    IsAuthenticatedOrReadOnly, IsAuthenticated)
-from rest_framework.decorators import action
-from rest_framework.response import Response
 
 User = get_user_model()
 
@@ -43,25 +42,13 @@ class CollectionViewSet(ModelViewSet):
         context['request'] = self.request
         return context
 
-    def list(self, request):
-        result = cache.get(CACHE_KEY_PREFIX)
-        if not result:
-            result = self.get_queryset()
-            cache.set(CACHE_KEY_PREFIX, result, 600)
-        result = self.get_serializer(result, many=True)
+    @method_decorator(cache_page(60 * 5, key_prefix=CACHE_LIST_KEY_PREFIX))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-        return Response(result.data)
-
+    @method_decorator(cache_page(60 * 5, key_prefix=CACHE_INSTANCE_KEY_PREFIX))
     def retrieve(self, request, *args, **kwargs):
-        collection_id = kwargs['pk']
-        cache_key = f'{CACHE_KEY_PREFIX}{collection_id}'
-        result = cache.get(cache_key)
-        if not result:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            cache.set(cache_key, serializer.data, 600)
-            result = serializer.data
-        return Response(result)
+        return super().retrieve(request, *args, **kwargs)
 
     @action(
         methods=['post'],
@@ -75,9 +62,9 @@ class CollectionViewSet(ModelViewSet):
         collection = self.get_object()
         request.data['collect'] = collection.id
         serializer = self.get_serializer(
-            data=request.data, context={"request": request})
+            data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.validated_data["collect"] = collection
+            serializer.validated_data['collect'] = collection
             serializer.save()
             return Response(serializer.data, status=201)
         else:

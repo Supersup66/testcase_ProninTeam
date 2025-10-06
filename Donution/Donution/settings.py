@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'debug_toolbar',
     'celery',
     'djoser',
     'api',
@@ -43,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'Donution.urls'
@@ -112,7 +114,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv('REDIS_CACHE_LOCATION', "redis://localhost:6379/1"),
+        "LOCATION": os.getenv(
+            'REDIS_CACHE_LOCATION', "redis://localhost:6379/1"),
 
     }
 }
@@ -121,6 +124,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
 }
 # If you have smtp server, uncomment and change this vars
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -131,8 +136,21 @@ EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 HOST_URL = os.getenv('HOST_URL', 'http://localhost')
 
 CELERY_TIMEZONE = TIME_ZONE
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', "redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', "redis://localhost:6379/0")
+
+CELERY_BROKER_URL = os.getenv(
+    'CELERY_BROKER_URL', "redis://localhost:6379/0")
+
+CELERY_RESULT_BACKEND = os.getenv(
+    'CELERY_RESULT_BACKEND', "redis://localhost:6379/0")
+
 CELERY_ACCEPT_CONTENT = ['application/json']
+
 CELERY_RESULT_SERIALIZER = 'json'
+
 CELERY_TASK_SERIALIZER = 'json'
+
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost',
+    '0.0.0.0'
+]
